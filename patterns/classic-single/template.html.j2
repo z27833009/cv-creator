@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CV — {{ personal.name }}</title>
+<style>
+  @page { size: A4; margin: 18mm 20mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    color: #1a1a1a;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    padding: 8mm 2mm;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+
+  .name {
+    text-align: center;
+    font-size: 28pt;
+    font-weight: 400;
+    letter-spacing: 2px;
+    margin-bottom: 2mm;
+  }
+  .tagline {
+    text-align: center;
+    font-size: 10.5pt;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 3mm;
+  }
+  .contact {
+    text-align: center;
+    font-size: 9.5pt;
+    color: #444;
+    margin-bottom: 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid #000;
+  }
+  .contact span + span::before {
+    content: " · ";
+    color: #999;
+  }
+
+  h2 {
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 6mm 0 3mm 0;
+    border-bottom: 1px solid #999;
+    padding-bottom: 1mm;
+  }
+
+  .summary {
+    font-style: italic;
+    text-align: justify;
+    margin-bottom: 2mm;
+  }
+
+  .entry {
+    margin-bottom: 4mm;
+    page-break-inside: avoid;
+  }
+  .entry-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .entry-title {
+    font-weight: 700;
+    font-size: 11.5pt;
+  }
+  .entry-date {
+    font-size: 10pt;
+    color: #555;
+    font-style: italic;
+  }
+  .entry-sub {
+    font-size: 10pt;
+    color: #333;
+    font-style: italic;
+    margin-bottom: 1mm;
+  }
+  ul { padding-left: 5mm; margin-top: 1mm; }
+  li { margin-bottom: 0.8mm; font-size: 10pt; }
+
+  .edu-detail {
+    font-size: 10pt;
+    color: #333;
+    margin-top: 0.5mm;
+    white-space: pre-line;
+  }
+
+  .skills-line {
+    margin-bottom: 1.5mm;
+    font-size: 10pt;
+  }
+  .skills-line strong {
+    display: inline-block;
+    width: 40mm;
+    font-variant: small-caps;
+    letter-spacing: 0.5px;
+  }
+
+  .langs-line {
+    text-align: center;
+    font-size: 10pt;
+  }
+  .langs-line span + span::before {
+    content: " · ";
+    color: #999;
+  }
+
+  .extras-line {
+    margin-bottom: 1.5mm;
+    font-size: 10pt;
+  }
+  .extras-line .meta {
+    color: #666;
+    font-style: italic;
+    font-size: 9.5pt;
+    margin-left: 3mm;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="name">{{ personal.name }}</div>
+  {% if personal.title %}<div class="tagline">{{ personal.title }}</div>{% endif %}
+
+  <div class="contact">
+    {% if personal.address %}<span>{{ personal.address }}</span>{% endif %}
+    {% if personal.email %}<span>{{ personal.email }}</span>{% endif %}
+    {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+    {% if personal.linkedin %}<span>{{ personal.linkedin }}</span>{% endif %}
+    {% if personal.github %}<span>{{ personal.github }}</span>{% endif %}
+    {% if personal.website %}<span>{{ personal.website }}</span>{% endif %}
+  </div>
+
+  {% if summary %}
+  <h2>Summary</h2>
+  <p class="summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if work %}
+  <h2>Professional Experience</h2>
+  {% for job in work %}
+  <div class="entry">
+    <div class="entry-line">
+      <span class="entry-title">{{ job.title }}</span>
+      <span class="entry-date">{{ job.date }}</span>
+    </div>
+    {% if job.role or job.location %}
+    <div class="entry-sub">
+      {{ job.role or '' }}{% if job.role and job.location %} — {% endif %}{{ job.location or '' }}
+    </div>
+    {% endif %}
+    {% if job.bullets %}
+    <ul>
+      {% for b in job.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if projects %}
+  <h2>Projects</h2>
+  {% for p in projects %}
+  <div class="entry">
+    <div class="entry-line">
+      <span class="entry-title">{{ p.title }}</span>
+      <span class="entry-date">{{ p.date }}</span>
+    </div>
+    {% if p.role or p.location %}
+    <div class="entry-sub">
+      {{ p.role or '' }}{% if p.role and p.location %} — {% endif %}{{ p.location or '' }}
+    </div>
+    {% endif %}
+    {% if p.bullets %}
+    <ul>
+      {% for b in p.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if education %}
+  <h2>Education</h2>
+  {% for e in education %}
+  <div class="entry">
+    <div class="entry-line">
+      <span class="entry-title">{{ e.title }}</span>
+      <span class="entry-date">{{ e.date }}</span>
+    </div>
+    {% if e.degree %}<div class="entry-sub">{{ e.degree }}</div>{% endif %}
+    {% if e.details %}<div class="edu-detail">{{ e.details|flat }}</div>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if skills %}
+  <h2>Skills</h2>
+  {% for cat in skills %}
+  <div class="skills-line"><strong>{{ cat.category }}</strong> {{ cat.tags|join(', ') }}</div>
+  {% endfor %}
+  {% endif %}
+
+  {% if languages %}
+  <h2>Languages</h2>
+  <p class="langs-line">
+    {% for lang in languages %}<span>{{ lang.name }} ({{ lang.level }})</span>{% endfor %}
+  </p>
+  {% endif %}
+
+  {% if extras %}
+  <h2>Awards &amp; Extracurriculars</h2>
+  {% for item in extras %}
+  <div class="extras-line">
+    <strong>{{ item.title }}</strong>{% if item.subtitle %} — {{ item.subtitle }}{% endif %}{% if item.meta %}<span class="meta">{{ item.meta }}</span>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+</div>
+</body>
+</html>

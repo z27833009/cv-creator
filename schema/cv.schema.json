@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CV",
+  "description": "Structured CV data. Consumed by cv-creator skill to render HTML/PDF via templates.",
+  "type": "object",
+  "required": ["personal"],
+  "additionalProperties": false,
+  "properties": {
+    "personal": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "description": "Full display name" },
+        "title": { "type": "string", "description": "Headline role, e.g. 'AI Engineer'" },
+        "photo": { "type": "string", "description": "Path to photo file, relative to data.yaml. Embedded as base64 at render time." },
+        "birth": { "type": "string" },
+        "nationality": { "type": "string" },
+        "address": { "type": "string" },
+        "available": { "type": "string", "description": "e.g. 'Immediately' or '2026-05-01'" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "website": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "github": { "type": "string" }
+      }
+    },
+    "summary": { "type": "string", "description": "Short professional summary paragraph." },
+
+    "work": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/experience" }
+    },
+    "projects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/experience" }
+    },
+
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "date"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string", "description": "Institution name" },
+          "date": { "type": "string" },
+          "location": { "type": "string" },
+          "degree": { "type": "string", "description": "Degree + grade, e.g. 'M.Sc. Computer Science (1.5)'" },
+          "details": { "type": "string", "description": "Thesis, focus areas, etc. Plain text or light HTML allowed." }
+        }
+      }
+    },
+
+    "skills": {
+      "type": "array",
+      "description": "Grouped skill categories rendered as tag clouds",
+      "items": {
+        "type": "object",
+        "required": ["category", "tags"],
+        "additionalProperties": false,
+        "properties": {
+          "category": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "level"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "level": { "type": "string", "description": "e.g. 'Fluent (C1)' or 'Native'" }
+        }
+      }
+    },
+
+    "extras": {
+      "type": "array",
+      "description": "Scholarships, awards, certifications, extracurriculars",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "meta": { "type": "string", "description": "Date/institution line" },
+          "date": { "type": "string" }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "experience": {
+      "type": "object",
+      "required": ["title", "date"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "description": "Company or project name" },
+        "role": { "type": "string", "description": "Job title (work entries) — omit for projects" },
+        "location": { "type": "string" },
+        "date": { "type": "string", "description": "e.g. '07/2025 – Present' or '01/2024 – 12/2024'" },
+        "bullets": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

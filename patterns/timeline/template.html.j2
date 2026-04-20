@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CV — {{ personal.name }}</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    padding: 16mm 18mm;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 8mm;
+    border-bottom: 3px solid #2563eb;
+    padding-bottom: 6mm;
+    margin-bottom: 8mm;
+  }
+  .avatar {
+    width: 22mm;
+    height: 22mm;
+    border-radius: 50%;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20pt;
+    font-weight: 700;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .who h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .who .role {
+    font-size: 11pt;
+    color: #2563eb;
+    font-weight: 600;
+    margin-top: 0.5mm;
+  }
+  .who .contact {
+    font-size: 9pt;
+    color: #666;
+    margin-top: 1.5mm;
+  }
+  .who .contact span + span::before { content: " · "; color: #cbd5e1; }
+
+  .summary {
+    background: #eff6ff;
+    border-left: 3px solid #2563eb;
+    padding: 4mm 5mm;
+    font-size: 10pt;
+    color: #555;
+    margin-bottom: 8mm;
+    border-radius: 0 4px 4px 0;
+  }
+
+  h2 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 7mm 0 4mm 0;
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+  }
+  h2::before {
+    content: "";
+    width: 4mm;
+    height: 4mm;
+    background: #2563eb;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 8mm;
+    margin-left: 1.5mm;
+    border-left: 2px solid #e5e7eb;
+  }
+
+  .tl-entry {
+    position: relative;
+    margin-bottom: 5mm;
+    padding-bottom: 2mm;
+    page-break-inside: avoid;
+  }
+  .tl-entry::before {
+    content: "";
+    position: absolute;
+    left: -10.5mm;
+    top: 1.5mm;
+    width: 3mm;
+    height: 3mm;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #2563eb;
+  }
+
+  .tl-date {
+    font-size: 8.5pt;
+    color: #2563eb;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.5mm;
+  }
+  .tl-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.5mm;
+  }
+  .tl-sub {
+    font-size: 9.5pt;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 1.5mm;
+  }
+  .tl-entry ul {
+    padding-left: 4mm;
+    margin-top: 1mm;
+  }
+  .tl-entry li {
+    font-size: 9.5pt;
+    color: #333;
+    margin-bottom: 1mm;
+  }
+  .tl-detail {
+    font-size: 9.5pt;
+    color: #333;
+    white-space: pre-line;
+    margin-top: 0.5mm;
+  }
+
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8mm;
+    margin-top: 4mm;
+  }
+  .skill-row {
+    display: flex;
+    gap: 3mm;
+    align-items: baseline;
+    margin-bottom: 2mm;
+    font-size: 9.5pt;
+  }
+  .skill-row .cat {
+    font-weight: 600;
+    color: #2563eb;
+    width: 30mm;
+    flex-shrink: 0;
+  }
+  .lang-pill {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 1mm 3mm;
+    margin: 0 2mm 1.5mm 0;
+    border-radius: 10px;
+    font-size: 9pt;
+    font-weight: 500;
+  }
+  .extras-row {
+    font-size: 9.5pt;
+    color: #333;
+    margin-bottom: 1.5mm;
+  }
+  .extras-row strong { color: #1a1a1a; }
+  .extras-row .meta { color: #666; font-style: italic; margin-left: 2mm; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="avatar">
+      {% if personal.photo_data_uri %}
+        <img src="{{ personal.photo_data_uri }}" alt="{{ personal.name }}">
+      {% else %}
+        {{ personal.name | initials }}
+      {% endif %}
+    </div>
+    <div class="who">
+      <h1>{{ personal.name }}</h1>
+      {% if personal.title %}<div class="role">{{ personal.title }}</div>{% endif %}
+      <div class="contact">
+        {% if personal.address %}<span>{{ personal.address }}</span>{% endif %}
+        {% if personal.email %}<span>{{ personal.email }}</span>{% endif %}
+        {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
+        {% if personal.linkedin %}<span>{{ personal.linkedin }}</span>{% endif %}
+        {% if personal.github %}<span>{{ personal.github }}</span>{% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if summary %}
+  <div class="summary">{{ summary }}</div>
+  {% endif %}
+
+  {% if work %}
+  <h2>Experience</h2>
+  <div class="timeline">
+    {% for job in work %}
+    <div class="tl-entry">
+      <div class="tl-date">{{ job.date }}</div>
+      <div class="tl-title">{{ job.title }}{% if job.role %} · {{ job.role }}{% endif %}</div>
+      {% if job.location %}<div class="tl-sub">{{ job.location }}</div>{% endif %}
+      {% if job.bullets %}
+      <ul>
+        {% for b in job.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <h2>Projects</h2>
+  <div class="timeline">
+    {% for p in projects %}
+    <div class="tl-entry">
+      <div class="tl-date">{{ p.date }}</div>
+      <div class="tl-title">{{ p.title }}{% if p.role %} · {{ p.role }}{% endif %}</div>
+      {% if p.location %}<div class="tl-sub">{{ p.location }}</div>{% endif %}
+      {% if p.bullets %}
+      <ul>
+        {% for b in p.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if education %}
+  <h2>Education</h2>
+  <div class="timeline">
+    {% for e in education %}
+    <div class="tl-entry">
+      <div class="tl-date">{{ e.date }}</div>
+      <div class="tl-title">{{ e.title }}</div>
+      {% if e.degree %}<div class="tl-sub">{{ e.degree }}</div>{% endif %}
+      {% if e.details %}<div class="tl-detail">{{ e.details|flat }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="bottom-grid">
+    {% if skills %}
+    <div>
+      <h2>Skills</h2>
+      {% for cat in skills %}
+      <div class="skill-row">
+        <span class="cat">{{ cat.category }}</span>
+        <span>{{ cat.tags|join(', ') }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div>
+      {% if languages %}
+      <h2>Languages</h2>
+      {% for lang in languages %}<span class="lang-pill">{{ lang.name }} · {{ lang.level }}</span>{% endfor %}
+      {% endif %}
+
+      {% if extras %}
+      <h2>Awards</h2>
+      {% for item in extras %}
+      <div class="extras-row">
+        <strong>{{ item.title }}</strong>{% if item.subtitle %} — {{ item.subtitle }}{% endif %}{% if item.meta %}<span class="meta">{{ item.meta }}</span>{% endif %}
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

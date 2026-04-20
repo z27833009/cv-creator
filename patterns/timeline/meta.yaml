@@ -1,0 +1,5 @@
+name: timeline
+description: Modern CV with a vertical timeline for experience and education. Features a circular avatar (photo or initials), blue accent color, and tinted summary block. Visual and scannable. Good for product/tech roles that value clarity.
+supports_photo: true
+pages: 1-2
+accent_color: "#2563eb"

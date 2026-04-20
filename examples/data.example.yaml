@@ -1,0 +1,95 @@
+# Example CV data file for the cv-creator skill.
+# Run: uv run ${CLAUDE_SKILL_DIR}/scripts/build_cv.py --data data.yaml --pattern modern-sidebar --out CV.pdf
+
+personal:
+  name: Alex Müller
+  title: Software Engineer
+  photo: ./photo.png            # optional, relative to this file
+  birth: Berlin, Germany
+  nationality: German
+  address: Munich, Germany
+  available: Immediately
+  email: alex.mueller@example.com  # optional
+
+summary: >
+  Software engineer with 6+ years of full-stack experience. Strong in
+  backend systems (Go, Python), distributed architectures, and cloud
+  infrastructure (AWS, Kubernetes). Passionate about developer tooling
+  and observability.
+
+work:
+  - title: Acme GmbH
+    role: Senior Software Engineer
+    location: Munich, Germany
+    date: 05/2023 – Present
+    bullets:
+      - Led the migration of the billing platform from a monolith to event-driven microservices, improving throughput 4×.
+      - Designed and shipped an internal feature-flag service now used by 40+ teams.
+      - Mentored three junior engineers; ran biweekly architecture review sessions.
+
+  - title: Contoso Ltd
+    role: Software Engineer
+    location: Remote, EU
+    date: 08/2020 – 04/2023
+    bullets:
+      - Built the customer-facing API gateway (Go, gRPC) handling 20M requests/day.
+      - Reduced p99 latency of the search endpoint from 850ms to 180ms via query planning and caching.
+      - Owned CI/CD for the data platform using GitHub Actions, Terraform, and ArgoCD.
+
+  - title: Globex Corp
+    role: Backend Developer (Intern)
+    location: Berlin, Germany
+    date: 03/2019 – 08/2019
+    bullets:
+      - Implemented a webhook delivery system with retries and dead-letter queues.
+      - Wrote integration tests that caught two production-impacting bugs before release.
+
+projects:
+  - title: Observability Sidecar
+    date: 01/2024 – Present
+    bullets:
+      - Designed an open-source metrics/logs sidecar (Go) that unifies Prometheus and OpenTelemetry export.
+      - 1.2k GitHub stars; adopted by two external teams.
+
+  - title: "Distributed Job Scheduler (Master Thesis, Grade 1.3)"
+    date: 10/2019 – 04/2020
+    bullets:
+      - Designed a consensus-based scheduler inspired by Raft with deterministic replay.
+      - Benchmarked against Nomad and k8s Jobs; published results at an internal workshop.
+
+education:
+  - title: Example University of Technology
+    date: 10/2017 – 04/2020
+    degree: M.Sc. Computer Science (1.5)
+    details: |
+      Thesis: Deterministic scheduling for distributed batch workloads (1.3)
+      Focus: Distributed Systems, Compilers, Formal Methods
+
+  - title: Example University of Applied Sciences
+    date: 09/2014 – 08/2017
+    degree: B.Sc. Software Engineering (1.8)
+    details: Focus — Algorithms, Databases, Software Architecture
+
+skills:
+  - category: Backend
+    tags: [Go, Python, gRPC, REST API, PostgreSQL, Redis]
+  - category: Cloud & DevOps
+    tags: [AWS, Kubernetes, Terraform, Docker, GitHub Actions, ArgoCD]
+  - category: Data
+    tags: [Kafka, Spark, ClickHouse, dbt]
+  - category: Observability
+    tags: [Prometheus, Grafana, OpenTelemetry, Loki]
+  - category: Frontend
+    tags: [TypeScript, React, Next.js]
+  - category: Tools
+    tags: [Git, Jira, Linear, Figma]
+
+languages:
+  - { name: German,  level: Native }
+  - { name: English, level: Fluent (C1) }
+  - { name: French,  level: Basic (A2) }
+
+extras:
+  - title: Open Source Contributor Award
+    subtitle: for sustained contributions to the observability ecosystem
+    meta: CNCF, 2024

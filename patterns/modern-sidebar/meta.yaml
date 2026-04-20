@@ -1,0 +1,5 @@
+name: modern-sidebar
+description: Two-column A4 layout with a dark navy left sidebar (photo, personal info, skill tags, languages, scholarships) and a white main column (summary, work, projects, education). Teal accents. Designed for AI/tech roles with dense content.
+supports_photo: true
+pages: 1-2          # renders 1 page if content fits, 2 pages otherwise
+accent_color: "#56c8c4"
