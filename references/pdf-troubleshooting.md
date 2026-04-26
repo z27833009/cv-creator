@@ -10,12 +10,51 @@ If the PDF is wrong or missing, work through this list.
 
 ## Contents
 
+- PDF text not selectable (most common gotcha)
 - PDF file not produced
 - Background colors missing
 - Photo not appearing
 - Fonts look wrong / characters missing
 - Content overflows or wrong page count
 - Engine-specific issues
+
+## PDF text not selectable
+
+Symptoms: opening the PDF, you cannot select / copy any text. ATS resume parsers fail. Search inside the PDF returns nothing.
+
+Root cause (almost always): the PDF was rendered by **Microsoft Print to PDF** (the Windows virtual printer). It routes through XPS, and when a page contains CSS gradients, embedded images, or some blend modes, it flattens the entire page into a single full-page JPEG. The result has no text characters — only pixels.
+
+**Quick check.** A genuine text PDF and a rasterized one differ in the very first bytes:
+
+```bash
+python - <<'PY'
+import re, sys
+data = open(sys.argv[1], "rb").read()
+m = re.search(rb"/Producer\s*\(([^)]{0,200})\)", data)
+print("Producer:", m.group(1).decode("latin1", "replace") if m else "(unknown)")
+print("image-first-page:", b"/Subtype /Image" in data[:5000] or b"/Subtype/Image" in data[:5000])
+print("has-text-ops:    ", any(op in data for op in (b" Tj", b" TJ", b")Tj", b"]TJ")))
+PY
+your-cv.pdf
+```
+
+- `Producer: Microsoft: Print To PDF` + `image-first-page: True` → rasterized, no text layer.
+- `Producer: Skia/PDF ...` (Edge/Chrome) or `Microsoft Word ...` + `has-text-ops: True` → fine.
+
+`build_cv.py` runs this check automatically after every render and prints `text-layer: OK | FAILED`. Add `--strict` to make a failed check exit non-zero (useful in CI / scripts).
+
+**Fix / prevention.**
+
+| Source                  | What to use                                                                |
+|-------------------------|----------------------------------------------------------------------------|
+| HTML (template output)  | This skill's default flow, or `msedge.exe --headless --print-to-pdf=...`   |
+| Existing HTML you edited| `build_cv.py --from-html path/to/file.html --out CV.pdf`                   |
+| Browser print dialog    | Choose the destination **"Save as PDF"** (Edge / Chrome's built-in)        |
+| Word                    | File → **Export → Create PDF/XPS** (NOT File → Print → Microsoft Print to PDF) |
+
+**Never** use the destination "Microsoft Print to PDF" in any print dialog for a CV — it's the single most common reason a PDF turns out unselectable. Same for opening a good PDF and re-saving it through this virtual printer.
+
+If you only have a rasterized PDF and the source HTML is gone, you can recover the text via OCR (`ocrmypdf input.pdf output.pdf`), but quality and layout will suffer — better to regenerate from `data.yaml`.
 
 ## PDF file not produced
 
