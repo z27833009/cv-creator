@@ -82,7 +82,15 @@ uv run ${CLAUDE_SKILL_DIR}/scripts/build_cv.py \
 
 **Add a new project / update a bullet**: edit `data.yaml`, re-run. Do not regenerate the whole file.
 
+**Render an existing HTML file directly** (skip templating — useful when the user has hand-edited an HTML CV):
+```bash
+uv run ${CLAUDE_SKILL_DIR}/scripts/build_cv.py \
+  --from-html path/to/cv.html --out path/to/cv.pdf
+```
+
 **Content overflows the page**: trim bullets in `data.yaml` first. Only edit the template as a last resort and only if the issue is general (not specific to this user's content).
+
+**PDF text not selectable**: every render now runs a self-check and prints `text-layer: OK | FAILED`. If FAILED, the PDF was almost certainly produced by "Microsoft Print to PDF" outside this script — see [references/pdf-troubleshooting.md](references/pdf-troubleshooting.md). Add `--strict` to fail the build when the check fails.
 
 ## Arguments
 
