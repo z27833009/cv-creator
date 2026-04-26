@@ -29,6 +29,7 @@ import base64
 import mimetypes
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -205,6 +206,57 @@ def pdf_via_playwright(html_path: Path, pdf_path: Path) -> None:
             raise
 
 
+# ─── PDF self-check ────────────────────────────────────────────────────────
+
+def verify_pdf_text_layer(pdf_path: Path) -> tuple[bool, str, list[str]]:
+    """Sanity-check that the produced PDF has a real text layer.
+
+    Catches the common Windows trap where a user's default printer is
+    "Microsoft Print to PDF", which silently rasterizes pages containing
+    CSS gradients or embedded images into a single full-page JPEG —
+    producing a PDF whose text cannot be selected or parsed by ATS.
+
+    The detection signal is the presence of `/Type /Font` objects.
+    Text-bearing PDFs always declare at least one font; a rasterized
+    "page = full-bleed JPEG" PDF (the Microsoft Print to PDF failure mode)
+    has none. Searching for content-stream operators like `Tj`/`TJ`
+    directly is unreliable because streams are usually flate-compressed.
+
+    Returns (ok, producer, warnings).
+    """
+    warnings: list[str] = []
+    try:
+        data = pdf_path.read_bytes()
+    except OSError as e:
+        return False, "(unreadable)", [f"cannot read produced PDF: {e}"]
+
+    if not data.startswith(b"%PDF"):
+        return False, "(not a PDF)", ["output file is not a valid PDF"]
+
+    m = re.search(rb"/Producer\s*\(([^)]{0,200})\)", data)
+    producer = m.group(1).decode("latin1", "replace") if m else "(unknown)"
+
+    has_font = b"/Type /Font" in data or b"/Type/Font" in data
+    is_print_to_pdf = "print to pdf" in producer.lower()
+
+    if not has_font:
+        warnings.append(
+            "PDF has no font objects — text is not selectable. "
+            "Most likely cause: a virtual printer like 'Microsoft Print to PDF' "
+            "rasterized the page into a single image. "
+            "See references/pdf-troubleshooting.md → 'PDF text not selectable'."
+        )
+        return False, producer, warnings
+
+    if is_print_to_pdf:
+        warnings.append(
+            f"PDF Producer is '{producer}'. This virtual printer can rasterize "
+            "complex layouts; verify text selection manually."
+        )
+
+    return True, producer, warnings
+
+
 # ─── CLI ───────────────────────────────────────────────────────────────────
 
 def die(msg: str) -> None:
@@ -212,9 +264,59 @@ def die(msg: str) -> None:
     sys.exit(1)
 
 
+def render_pdf(out_html: Path, out_pdf: Path, engine: str) -> str:
+    """Render HTML → PDF using the chosen engine. Returns the engine label used."""
+    if engine == "auto":
+        detected = find_browser()
+        if detected:
+            kind, browser_path = detected
+            try:
+                pdf_via_browser(out_html, out_pdf, browser_path)
+                return f"{kind} headless @ {browser_path}"
+            except Exception as e:
+                print(
+                    f"warn: {kind} render failed, falling back to playwright: {e}",
+                    file=sys.stderr,
+                )
+        pdf_via_playwright(out_html, out_pdf)
+        return "playwright"
+
+    if engine in ("edge", "chrome"):
+        detected = find_browser()
+        if not detected:
+            die(f"no {engine} / chromium-family browser found on PATH")
+        _, browser_path = detected
+        pdf_via_browser(out_html, out_pdf, browser_path)
+        return engine
+
+    if engine == "playwright":
+        pdf_via_playwright(out_html, out_pdf)
+        return "playwright"
+
+    die(f"unknown engine: {engine}")
+    return engine
+
+
+def report_pdf(out_pdf: Path, engine_label: str, strict: bool) -> int:
+    """Print the PDF path + result of the text-layer self-check."""
+    ok, producer, warnings = verify_pdf_text_layer(out_pdf)
+    status = "text-layer: OK" if ok else "text-layer: FAILED"
+    print(f"PDF:  {out_pdf}  (engine: {engine_label}, {status}, producer: {producer})")
+    for w in warnings:
+        print(f"warn: {w}", file=sys.stderr)
+    if not ok and strict:
+        return 2
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build a CV PDF from data + pattern.")
-    parser.add_argument("--data", required=True, type=Path, help="Path to data.yaml")
+    parser.add_argument("--data", type=Path, help="Path to data.yaml")
+    parser.add_argument(
+        "--from-html",
+        type=Path,
+        help="Skip templating and render this existing HTML file directly to PDF",
+    )
     parser.add_argument("--pattern", default="modern-sidebar", help="Pattern name under patterns/")
     parser.add_argument("--out", type=Path, help="Output PDF path (default: ./CV-<name>.pdf)")
     parser.add_argument("--html-out", type=Path, help="Also write rendered HTML to this path")
@@ -225,8 +327,31 @@ def main() -> int:
         help="PDF engine (default: auto — try Edge/Chrome then Playwright)",
     )
     parser.add_argument("--no-pdf", action="store_true", help="Render HTML only, skip PDF")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero if the produced PDF lacks a selectable text layer",
+    )
     args = parser.parse_args()
 
+    if not args.data and not args.from_html:
+        die("provide either --data <data.yaml> or --from-html <file.html>")
+    if args.data and args.from_html:
+        die("--data and --from-html are mutually exclusive")
+
+    # ── Mode 1: render an existing HTML file directly ──
+    if args.from_html:
+        src_html = args.from_html.resolve()
+        if not src_html.exists():
+            die(f"HTML file not found: {src_html}")
+        out_pdf: Path = args.out.resolve() if args.out else src_html.with_suffix(".pdf")
+        if args.no_pdf:
+            print(f"HTML: {src_html}")
+            return 0
+        engine_label = render_pdf(src_html, out_pdf, args.engine)
+        return report_pdf(out_pdf, engine_label, args.strict)
+
+    # ── Mode 2: data + pattern → HTML → PDF ──
     data_path: Path = args.data.resolve()
     pattern_dir = PATTERNS_DIR / args.pattern
     if not pattern_dir.exists():
@@ -238,7 +363,7 @@ def main() -> int:
 
     # Default output paths
     safe_name = (data["personal"]["name"] or "CV").replace(" ", "-").replace("/", "-")
-    out_pdf: Path = args.out.resolve() if args.out else Path.cwd() / f"CV-{safe_name}.pdf"
+    out_pdf = args.out.resolve() if args.out else Path.cwd() / f"CV-{safe_name}.pdf"
     out_html: Path = args.html_out.resolve() if args.html_out else out_pdf.with_suffix(".html")
 
     out_html.write_text(html, encoding="utf-8")
@@ -247,38 +372,8 @@ def main() -> int:
     if args.no_pdf:
         return 0
 
-    # Pick engine
-    engine = args.engine
-    if engine == "auto":
-        detected = find_browser()
-        if detected:
-            kind, browser_path = detected
-            try:
-                pdf_via_browser(out_html, out_pdf, browser_path)
-                print(f"PDF:  {out_pdf}  (engine: {kind} headless @ {browser_path})")
-                return 0
-            except Exception as e:
-                print(f"warn: {kind} render failed, falling back to playwright: {e}", file=sys.stderr)
-        pdf_via_playwright(out_html, out_pdf)
-        print(f"PDF:  {out_pdf}  (engine: playwright)")
-        return 0
-
-    if engine in ("edge", "chrome"):
-        detected = find_browser()
-        if not detected:
-            die(f"no {engine} / chromium-family browser found on PATH")
-        _, browser_path = detected
-        pdf_via_browser(out_html, out_pdf, browser_path)
-        print(f"PDF:  {out_pdf}  (engine: {engine})")
-        return 0
-
-    if engine == "playwright":
-        pdf_via_playwright(out_html, out_pdf)
-        print(f"PDF:  {out_pdf}  (engine: playwright)")
-        return 0
-
-    die(f"unknown engine: {engine}")
-    return 1
+    engine_label = render_pdf(out_html, out_pdf, args.engine)
+    return report_pdf(out_pdf, engine_label, args.strict)
 
 
 if __name__ == "__main__":
