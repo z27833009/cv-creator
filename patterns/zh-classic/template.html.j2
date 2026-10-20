@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简历 — {{ personal.name }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 5.5mm 11mm;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9.3pt;
+    line-height: 1.42;
+    color: #2d3748;
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media screen {
+    body {
+      background: #f4f4f7;
+      padding: 20px;
+    }
+    .resume-container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 8mm 18px;
+      border-radius: 4px;
+    }
+  }
+
+  .resume-container {
+    width: 100%;
+  }
+
+  /* ── 头部三栏布局 ── */
+  .header-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4mm;
+  }
+
+  .header-logo-cell {
+    width: 20%;
+    vertical-align: middle;
+  }
+
+  .header-info-cell {
+    width: 60%;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .header-photo-cell {
+    width: 20%;
+    text-align: right;
+    vertical-align: middle;
+  }
+
+  /* 个人照片 */
+  .header-photo-cell img {
+    width: 23mm;
+    height: 30mm;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid #cbd5e0;
+  }
+
+  /* 中间姓名和信息 */
+  .name {
+    font-size: 20pt;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: 2px;
+    margin-bottom: 2mm;
+  }
+
+  .contact-info {
+    font-size: 8.5pt;
+    color: #4a5568;
+    line-height: 1.45;
+  }
+
+  .contact-info a {
+    color: #2b6cb0;
+    text-decoration: none;
+  }
+
+  /* ── 模块带斜角蓝色横条样式 ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1.5px solid #2b6cb0; /* 贯穿全宽的横线 */
+    margin-bottom: 1.2mm;
+    margin-top: 2.0mm;
+  }
+
+  .section-title {
+    background: #2b6cb0; /* 经典深蓝色 */
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 10pt;
+    padding: 3px 18px 3px 10px;
+    clip-path: polygon(0 0, 88% 0, 100% 100%, 0 100%); /* 斜切效果 */
+    margin-bottom: -1.5px; /* 完美压在横线上 */
+    border-radius: 1px 0 0 0;
+  }
+
+  /* ── 条目布局 ── */
+  .entry {
+    margin-bottom: 1.5mm;
+  }
+  .entry:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 三列等高分布对齐：学校/公司占2.4份，职位/学位占2.2份，时间占1.2份 */
+  .entry-header {
+    display: grid;
+    grid-template-columns: 2.4fr 2.2fr 1.2fr;
+    font-weight: 700;
+    font-size: 9.5pt;
+    color: #2d3748;
+    margin-bottom: 1mm;
+  }
+
+  .entry-title {
+    font-size: 9.5pt;
+  }
+
+  .entry-role {
+    font-weight: 700;
+    color: #2d3748;
+  }
+
+  .entry-date {
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 9pt;
+    text-align: right;
+  }
+
+  .entry-desc {
+    font-size: 9pt;
+    color: #4a5568;
+    margin-bottom: 0.8mm;
+    text-align: justify;
+    line-height: 1.4;
+  }
+
+  /* 子弹点列表样式 */
+  .entry ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .entry li {
+    font-size: 9pt;
+    color: #2d3748;
+    margin-bottom: 0.4mm;
+    line-height: 1.4;
+    text-align: justify;
+    padding-left: 3.5mm;
+    text-indent: -3.5mm; /* 悬挂缩进以对齐圆点 */
+  }
+
+  /* ── 技能与证书 ── */
+  .skills-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .skills-list li {
+    font-size: 9pt;
+    color: #2d3748;
+    margin-bottom: 0.5mm;
+    line-height: 1.45;
+    padding-left: 3.5mm;
+    text-indent: -3.5mm;
+  }
+
+  .skills-list strong {
+    color: #2d3748;
+  }
+
+</style>
+</head>
+<body>
+<div class="resume-container">
+
+  <!-- ════════ 头部个人信息 (Borsch 居中版) ════════ -->
+  <table class="header-table">
+    <tr>
+      <!-- 左侧 TU Darmstadt 徽标 -->
+      <td class="header-logo-cell">
+        <img src="./assets/v2-eb69c655a1f7ffe5c9a0b9152a2ef0a6_1440w.png" style="height: 38px; width: auto; object-fit: contain; display: block;" alt="Technische Universität Darmstadt Logo">
+      </td>
+      
+      <!-- 中间姓名与联系方式 -->
+      <td class="header-info-cell">
+        <div class="name">{{ personal.name }}</div>
+        <div class="contact-info">
+          {% if personal.phone %}{{ personal.phone }}{% endif %}
+          {%- if personal.email %} 丨 <a href="mailto:{{ personal.email }}">{{ personal.email }}</a>{% endif -%}
+          {%- if personal.wechat %} 丨 微信号：{{ personal.wechat }}{% endif -%}<br>
+          {%- if personal.address %}现居：{{ personal.address }}{% endif -%}
+          {%- if personal.gender %} 丨 {{ personal.gender }}{% endif -%}
+          {%- if personal.hometown %} 丨 {{ personal.hometown }}{% endif -%}
+          {%- if personal.ethnicity %} 丨 {{ personal.ethnicity }}{% endif -%}
+          {%- if personal.linkedin %} 丨 <a href="{{ personal.linkedin if personal.linkedin.startswith('http') else 'https://' + personal.linkedin }}" target="_blank">领英</a>{% endif -%}
+        </div>
+      </td>
+      
+      <!-- 右侧照片 -->
+      <td class="header-photo-cell">
+        {% if personal.photo %}
+        <img src="{{ personal.photo }}" alt="{{ personal.name }}">
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <!-- ════════ 工作经验 ════════ -->
+  {% if work %}
+  <div class="section-header">
+    <div class="section-title">工作经验</div>
+  </div>
+  {% for job in work %}
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">{{ job.title }}</span>
+      <span class="entry-role">{{ job.role }}</span>
+      <span class="entry-date">{{ job.date }}</span>
+    </div>
+    {% if job.desc %}
+    <div class="entry-desc">
+      {{ job.desc }}
+    </div>
+    {% endif %}
+    {% if job.bullets %}
+    <ul>
+      {% for b in job.bullets %}<li>● {{ b|flat }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ════════ 项目经历 ════════ -->
+  {% if projects %}
+  <div class="section-header">
+    <div class="section-title">项目经历</div>
+  </div>
+  {% for p in projects %}
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">{{ p.title }}</span>
+      <span class="entry-role"></span>
+      <span class="entry-date">{{ p.date }}</span>
+    </div>
+    {% if p.bullets %}
+    <ul>
+      {% for b in p.bullets %}<li>● {{ b|flat }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ════════ 教育经历 ════════ -->
+  {% if education %}
+  <div class="section-header">
+    <div class="section-title">教育经历</div>
+  </div>
+  {% for edu in education %}
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">{{ edu.title }}</span>
+      <span class="entry-role">{{ edu.degree }}</span>
+      <span class="entry-date">{{ edu.date }}</span>
+    </div>
+    {% if edu.details %}
+    <div class="edu-detail">{{ edu.details|flat }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ════════ 技能/证书及其他 ════════ -->
+  {% if skills or languages %}
+  <div class="section-header">
+    <div class="section-title">技能/证书及其他</div>
+  </div>
+  <ul class="skills-list">
+    {% for cat in skills %}
+    <li>● <strong>{{ cat.category }}：</strong>{{ cat.tags|join(', ') }}</li>
+    {% endfor %}
+    {% if languages %}
+    <li>● <strong>语言能力：</strong>
+      {%- for lang in languages -%}
+        {{ lang.name }} ({{ lang.level }}){% if not loop.last %}，{% endif %}
+      {%- endfor -%}
+    </li>
+    {% endif %}
+  </ul>
+  {% endif %}
+
+</div>
+</body>
+</html>

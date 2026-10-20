@@ -4,69 +4,75 @@
 <meta charset="UTF-8">
 <title>CV — {{ personal.name }}</title>
 <style>
-  @page { size: A4; margin: 18mm 20mm; }
+  @page { size: A4; margin: 16mm 18mm; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 11pt;
-    line-height: 1.55;
+    font-size: 10.8pt;
+    line-height: 1.5;
     color: #1a1a1a;
     background: #fff;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
   .page {
-    padding: 8mm 2mm;
+    padding: 4mm 2mm;
     max-width: 210mm;
     margin: 0 auto;
   }
 
   .name {
     text-align: center;
-    font-size: 28pt;
+    font-size: 26pt;
     font-weight: 400;
     letter-spacing: 2px;
-    margin-bottom: 2mm;
+    margin-bottom: 1.5mm;
   }
   .tagline {
     text-align: center;
     font-size: 10.5pt;
     font-style: italic;
     color: #555;
-    margin-bottom: 3mm;
+    margin-bottom: 2.5mm;
   }
   .contact {
     text-align: center;
     font-size: 9.5pt;
     color: #444;
-    margin-bottom: 8mm;
-    padding-bottom: 4mm;
-    border-bottom: 1px solid #000;
+    margin-bottom: 6mm;
+    padding-bottom: 3.5mm;
+    border-bottom: none;
   }
   .contact span + span::before {
     content: " · ";
     color: #999;
   }
+  .contact a {
+    color: inherit;
+    text-decoration: none;
+  }
 
   h2 {
-    font-size: 11pt;
+    font-size: 10.5pt;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     text-align: center;
-    margin: 6mm 0 3mm 0;
+    margin: 5mm 0 2.5mm 0;
     border-bottom: 1px solid #999;
-    padding-bottom: 1mm;
+    padding-bottom: 0.8mm;
   }
 
   .summary {
+    font-size: 10pt;
     font-style: italic;
     text-align: justify;
     margin-bottom: 2mm;
+    line-height: 1.45;
   }
 
   .entry {
-    margin-bottom: 4mm;
+    margin-bottom: 3.5mm;
     page-break-inside: avoid;
   }
   .entry-line {
@@ -76,43 +82,45 @@
   }
   .entry-title {
     font-weight: 700;
-    font-size: 11.5pt;
+    font-size: 11pt;
   }
   .entry-date {
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #555;
     font-style: italic;
   }
   .entry-sub {
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #333;
     font-style: italic;
-    margin-bottom: 1mm;
+    margin-bottom: 0.8mm;
   }
-  ul { padding-left: 5mm; margin-top: 1mm; }
-  li { margin-bottom: 0.8mm; font-size: 10pt; }
+  ul { padding-left: 5mm; margin-top: 0.8mm; }
+  li { margin-bottom: 0.5mm; font-size: 10pt; }
 
   .edu-detail {
-    font-size: 10pt;
+    font-size: 9.5pt;
     color: #333;
-    margin-top: 0.5mm;
+    margin-top: 0.4mm;
     white-space: pre-line;
   }
 
   .skills-line {
-    margin-bottom: 1.5mm;
-    font-size: 10pt;
+    display: flex;
+    margin-bottom: 1.2mm;
+    font-size: 9.5pt;
   }
   .skills-line strong {
+    flex-shrink: 0;
     display: inline-block;
-    width: 40mm;
+    width: 38mm;
     font-variant: small-caps;
     letter-spacing: 0.5px;
   }
 
   .langs-line {
     text-align: center;
-    font-size: 10pt;
+    font-size: 9.5pt;
   }
   .langs-line span + span::before {
     content: " · ";
@@ -120,13 +128,13 @@
   }
 
   .extras-line {
-    margin-bottom: 1.5mm;
-    font-size: 10pt;
+    margin-bottom: 1.2mm;
+    font-size: 9.5pt;
   }
   .extras-line .meta {
     color: #666;
     font-style: italic;
-    font-size: 9.5pt;
+    font-size: 9pt;
     margin-left: 3mm;
   }
 </style>
@@ -141,7 +149,15 @@
     {% if personal.address %}<span>{{ personal.address }}</span>{% endif %}
     {% if personal.email %}<span>{{ personal.email }}</span>{% endif %}
     {% if personal.phone %}<span>{{ personal.phone }}</span>{% endif %}
-    {% if personal.linkedin %}<span>{{ personal.linkedin }}</span>{% endif %}
+    {% if personal.linkedin %}
+      <span>
+        {% if 'linkedin.com' in personal.linkedin %}
+          <a href="{{ personal.linkedin if personal.linkedin.startswith('http') else 'https://' + personal.linkedin }}">LinkedIn</a>
+        {% else %}
+          {{ personal.linkedin }}
+        {% endif %}
+      </span>
+    {% endif %}
     {% if personal.github %}<span>{{ personal.github }}</span>{% endif %}
     {% if personal.website %}<span>{{ personal.website }}</span>{% endif %}
   </div>

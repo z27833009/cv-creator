@@ -1,0 +1,5 @@
+name: chinese-classic
+description: 复刻波士版 (中文版)，包含页头 Technische Universität Darmstadt 徽标、居中的大字姓名与两行扁平化联络栏。支持经历的段落介绍（job.desc）和子弹项组合，适合传统学术或研发求职岗位。
+supports_photo: true
+pages: 1
+accent_color: "#2b6cb0"

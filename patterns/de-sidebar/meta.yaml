@@ -1,0 +1,5 @@
+name: de-sidebar
+description: Modern dual-column sidebar template (German version) with circular profile photo (38mm diameter), left-and-right aligned basic info, and organized skill tags. Fits on 1 page.
+supports_photo: true
+pages: 1
+accent_color: "#0284c7"

@@ -1,0 +1,5 @@
+name: chinese-minimalist
+description: 经典单栏极简风 (中文版)，融合了 Borsch 样式的深蓝斜切缎带标题。支持微信展示、领英链接展示，非常适合中国本土求职市场。
+supports_photo: true
+pages: 1
+accent_color: "#2b6cb0"

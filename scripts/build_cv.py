@@ -257,6 +257,18 @@ def verify_pdf_text_layer(pdf_path: Path) -> tuple[bool, str, list[str]]:
     return True, producer, warnings
 
 
+def count_pdf_pages(pdf_path: Path) -> int:
+    try:
+        data = pdf_path.read_bytes()
+        content = data.decode("ascii", errors="replace")
+        matches = re.findall(r"/Type\s*/Page\b", content)
+        return len(matches)
+    except Exception as e:
+        print(f"warn: failed to count PDF pages: {e}", file=sys.stderr)
+        return 0
+
+
+
 # ─── CLI ───────────────────────────────────────────────────────────────────
 
 def die(msg: str) -> None:
@@ -332,14 +344,108 @@ def main() -> int:
         action="store_true",
         help="Exit non-zero if the produced PDF lacks a selectable text layer",
     )
+    parser.add_argument("--config", type=Path, help="Path to cv-config.yaml to build multiple targets")
     args = parser.parse_args()
 
-    if not args.data and not args.from_html:
-        die("provide either --data <data.yaml> or --from-html <file.html>")
-    if args.data and args.from_html:
-        die("--data and --from-html are mutually exclusive")
+    if not args.data and not args.from_html and not args.config:
+        die("provide either --data <data.yaml>, --from-html <file.html>, or --config <cv-config.yaml>")
+    
+    provided_modes = sum(1 for x in [args.data, args.from_html, args.config] if x is not None)
+    if provided_modes > 1:
+        die("--data, --from-html, and --config are mutually exclusive")
 
-    # ── Mode 1: render an existing HTML file directly ──
+    # ── Mode 1: Render configuration-driven targets ──
+    if args.config:
+        config_path = args.config.resolve()
+        if not config_path.exists():
+            die(f"config file not found: {config_path}")
+        
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+        
+        targets = config.get("targets")
+        if not targets or not isinstance(targets, list):
+            die("config file must contain a 'targets' list")
+            
+        config_dir = config_path.parent
+        has_errors = False
+        
+        for t in targets:
+            name = t.get("name", "Unnamed Target")
+            data_rel = t.get("data")
+            pattern_name = t.get("pattern")
+            from_html_rel = t.get("from_html")
+            out_rel = t.get("out")
+            max_pages = t.get("max_pages")
+            
+            if not out_rel:
+                print(f"error: target '{name}' must specify 'out'", file=sys.stderr)
+                has_errors = True
+                continue
+                
+            out_pdf = (config_dir / out_rel).resolve()
+            
+            if from_html_rel:
+                src_html = (config_dir / from_html_rel).resolve()
+                if not src_html.exists():
+                    print(f"error: HTML file not found for target '{name}': {src_html}", file=sys.stderr)
+                    has_errors = True
+                    continue
+                print(f"\n--- Compiling HTML target: {name} ---")
+                if args.no_pdf:
+                    print(f"HTML: {src_html}")
+                    continue
+                engine_label = render_pdf(src_html, out_pdf, args.engine)
+                report_status = report_pdf(out_pdf, engine_label, args.strict)
+                if report_status != 0:
+                    has_errors = True
+            else:
+                if not data_rel or not pattern_name:
+                    print(f"error: target '{name}' must specify either 'from_html' or ('data' and 'pattern')", file=sys.stderr)
+                    has_errors = True
+                    continue
+                data_path = (config_dir / data_rel).resolve()
+                pattern_dir = PATTERNS_DIR / pattern_name
+                out_html = out_pdf.with_suffix(".html")
+                
+                if not data_path.exists():
+                    print(f"error: data file not found for target '{name}': {data_path}", file=sys.stderr)
+                    has_errors = True
+                    continue
+                if not pattern_dir.exists():
+                    print(f"error: pattern not found for target '{name}': {pattern_dir}", file=sys.stderr)
+                    has_errors = True
+                    continue
+                    
+                print(f"\n--- Building target: {name} ---")
+                data_loaded = load_data(data_path)
+                embed_photo(data_loaded, data_path.parent)
+                html = render_html(data_loaded, pattern_dir)
+                out_html.write_text(html, encoding="utf-8")
+                print(f"HTML: {out_html}")
+                if args.no_pdf:
+                    continue
+                engine_label = render_pdf(out_html, out_pdf, args.engine)
+                report_status = report_pdf(out_pdf, engine_label, args.strict)
+                if report_status != 0:
+                    has_errors = True
+            
+            pages = count_pdf_pages(out_pdf)
+            print(f"Pages: {pages}")
+            if max_pages is not None:
+                if pages > max_pages:
+                    print(f"error: target '{name}' exceeded page budget: {pages} > {max_pages} pages!", file=sys.stderr)
+                    has_errors = True
+                else:
+                    print(f"Page budget check: OK ({pages} <= {max_pages})")
+                    
+        if has_errors:
+            die("one or more targets failed to build or violated page budgets")
+            
+        print("\nAll targets compiled successfully!")
+        return 0
+
+    # ── Mode 2: render an existing HTML file directly ──
     if args.from_html:
         src_html = args.from_html.resolve()
         if not src_html.exists():
@@ -351,7 +457,7 @@ def main() -> int:
         engine_label = render_pdf(src_html, out_pdf, args.engine)
         return report_pdf(out_pdf, engine_label, args.strict)
 
-    # ── Mode 2: data + pattern → HTML → PDF ──
+    # ── Mode 3: data + pattern → HTML → PDF ──
     data_path: Path = args.data.resolve()
     pattern_dir = PATTERNS_DIR / args.pattern
     if not pattern_dir.exists():

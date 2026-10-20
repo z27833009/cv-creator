@@ -61,10 +61,10 @@
   .sidebar {
     background: transparent;
     color: #d0d8e0;
-    padding: 12mm 6mm 12mm 6mm;
+    padding: 6mm 6mm 6mm 6mm;
     display: flex;
     flex-direction: column;
-    gap: 6mm;
+    gap: 3mm;
   }
 
   .photo-container {
@@ -97,13 +97,13 @@
   .info-row {
     display: flex;
     justify-content: space-between;
-    padding: 1.2mm 0;
+    padding: 0.5mm 0;
     font-size: 9pt;
   }
   .info-label { color: #8a9bb0; }
   .info-value { color: #d0d8e0; text-align: right; }
 
-  .skill-category { margin-bottom: 3mm; }
+  .skill-category { margin-bottom: 1.0mm; }
   .skill-category-title {
     font-size: 8.5pt;
     font-weight: 600;
@@ -128,7 +128,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5mm 0;
+    padding: 0.5mm 0;
     font-size: 9pt;
   }
   .lang-name { color: #d0d8e0; }
@@ -144,10 +144,10 @@
 
   /* ── Main Content ── */
   .main {
-    padding: 12mm 10mm 12mm 10mm;
+    padding: 6mm 10mm 6mm 10mm;
     display: flex;
     flex-direction: column;
-    gap: 5.5mm;
+    gap: 2.5mm;
   }
 
   .header { margin-bottom: 1mm; }
@@ -178,11 +178,11 @@
     color: #1b2a3d;
     padding-bottom: 2mm;
     border-bottom: 2px solid #56c8c4;
-    margin-bottom: 4mm;
+    margin-bottom: 1.5mm;
   }
 
   .entry {
-    margin-bottom: 4.5mm;
+    margin-bottom: 2.0mm;
     page-break-inside: avoid;
   }
   .entry:last-child { margin-bottom: 0; }
@@ -260,11 +260,11 @@
       {% if personal.nationality %}<div class="info-row"><span class="info-label">Nationality</span><span class="info-value">{{ personal.nationality }}</span></div>{% endif %}
       {% if personal.address %}<div class="info-row"><span class="info-label">Address</span><span class="info-value">{{ personal.address }}</span></div>{% endif %}
       {% if personal.available %}<div class="info-row"><span class="info-label">Available</span><span class="info-value">{{ personal.available }}</span></div>{% endif %}
-      {% if personal.email %}<div class="info-row"><span class="info-label">Email</span><span class="info-value">{{ personal.email }}</span></div>{% endif %}
+      {% if personal.email %}<div class="info-row"><span class="info-label">Email</span><span class="info-value"><a href="mailto:{{ personal.email }}" style="color: inherit; text-decoration: none;">{{ personal.email }}</a></span></div>{% endif %}
       {% if personal.phone %}<div class="info-row"><span class="info-label">Phone</span><span class="info-value">{{ personal.phone }}</span></div>{% endif %}
-      {% if personal.linkedin %}<div class="info-row"><span class="info-label">LinkedIn</span><span class="info-value">{{ personal.linkedin }}</span></div>{% endif %}
-      {% if personal.github %}<div class="info-row"><span class="info-label">GitHub</span><span class="info-value">{{ personal.github }}</span></div>{% endif %}
-      {% if personal.website %}<div class="info-row"><span class="info-label">Website</span><span class="info-value">{{ personal.website }}</span></div>{% endif %}
+      {% if personal.linkedin %}<div class="info-row"><span class="info-label">LinkedIn</span><span class="info-value"><a href="{{ personal.linkedin_url | default('https://www.linkedin.com/in/' ~ personal.linkedin) }}" style="color: inherit; text-decoration: none;">{{ personal.linkedin }}</a></span></div>{% endif %}
+      {% if personal.github %}<div class="info-row"><span class="info-label">GitHub</span><span class="info-value"><a href="{{ personal.github_url | default('https://github.com/' ~ personal.github) }}" style="color: inherit; text-decoration: none;">{{ personal.github }}</a></span></div>{% endif %}
+      {% if personal.website %}<div class="info-row"><span class="info-label">Website</span><span class="info-value"><a href="{{ personal.website_url | default('https://' ~ personal.website) }}" style="color: inherit; text-decoration: none;">{{ personal.website }}</a></span></div>{% endif %}
     </div>
 
     {% if skills %}

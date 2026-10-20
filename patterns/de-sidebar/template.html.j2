@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV - {{ personal.name }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+    line-height: 1.38;
+    color: #334155; /* Slate-700 */
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media screen {
+    body {
+      background: #f1f5f9; /* Slate-100 */
+      padding: 20px 0;
+    }
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    display: grid;
+    grid-template-columns: 70mm 1fr;
+  }
+
+  /* ── Left Sidebar ── */
+  .sidebar {
+    background: #1e293b; /* Slate-800 */
+    color: #f1f5f9;      /* Slate-100 */
+    padding: 8mm 5mm;
+    display: flex;
+    flex-direction: column;
+    gap: 5mm;
+  }
+
+  .photo-container {
+    text-align: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .photo-container img {
+    width: 36mm;
+    height: 36mm;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 50%;
+    border: 2px solid #38bdf8; /* Sky blue accent */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar h2 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #38bdf8; /* Accent color */
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .sidebar-block {
+    margin-bottom: 1mm;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2mm;
+    font-size: 8.5pt;
+    line-height: 1.45;
+  }
+
+  .info-label {
+    color: #94a3b8; /* Slate-400 */
+    font-weight: 600;
+    margin-right: 2mm;
+    flex-shrink: 0;
+  }
+
+  .info-value {
+    color: #e2e8f0; /* Slate-200 */
+    text-align: right;
+    word-break: break-all;
+  }
+
+  .info-value a {
+    color: #38bdf8;
+    text-decoration: none;
+  }
+
+  .skill-category {
+    margin-bottom: 2.5mm;
+  }
+
+  .skill-title {
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: #38bdf8;
+    margin-bottom: 1mm;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5mm;
+  }
+
+  .skill-tag {
+    font-size: 8pt;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 4.5mm;
+    border-radius: 3px;
+  }
+
+  .lang-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5pt;
+    margin-bottom: 1.5mm;
+  }
+  .lang-name {
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+  .lang-level {
+    color: #94a3b8;
+  }
+
+  /* ── Right Main Content ── */
+  .main-content {
+    padding: 7mm 9mm;
+    display: flex;
+    flex-direction: column;
+    gap: 3mm;
+  }
+
+  .header {
+    padding-bottom: 3.5mm;
+  }
+
+  .name {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #0f172a; /* Slate-900 */
+    margin-bottom: 2mm;
+  }
+
+  .summary {
+    font-size: 9pt;
+    color: #475569; /* Slate-600 */
+    line-height: 1.55;
+    text-align: justify;
+  }
+
+  .section-title-main {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #0284c7;
+    margin-bottom: 2mm;
+  }
+
+  .entry {
+    margin-bottom: 1.5mm;
+  }
+  .entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8mm;
+  }
+
+  .entry-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .entry-date {
+    font-size: 8.5pt;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .entry-subheader {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5pt;
+    margin-bottom: 1.5mm;
+  }
+
+  .entry-role {
+    font-style: italic;
+    color: #0284c7;
+    font-weight: 600;
+  }
+
+  .entry-location {
+    color: #64748b;
+  }
+
+  .entry ul {
+    list-style-type: square;
+    padding-left: 4.5mm;
+  }
+
+  .entry li {
+    font-size: 9pt;
+    color: #334155;
+    margin-bottom: 0.4mm;
+    line-height: 1.36;
+    text-align: justify;
+  }
+
+  .edu-detail {
+    font-size: 8.5pt;
+    color: #475569;
+    margin-top: 1mm;
+    padding-left: 1mm;
+    line-height: 1.45;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ════════ LEFT SIDEBAR ════════ -->
+  <div class="sidebar">
+    {% if personal.photo %}
+    <div class="photo-container">
+      <img src="{{ personal.photo }}" alt="{{ personal.name }}">
+    </div>
+    {% endif %}
+
+    <!-- Personal Info -->
+    <div class="sidebar-block">
+      <h2>Kontakt</h2>
+      {% if personal.address %}
+      <div class="info-item">
+        <span class="info-label">Adresse</span>
+        <span class="info-value">
+          {%- if 'Aschaffenburg, DE' in personal.address or 'Aschaffenburg, Germany' in personal.address -%}
+            Aschaffenburg, Deutschland
+          {%- else -%}
+            {{ personal.address }}
+          {%- endif -%}
+        </span>
+      </div>
+      {% endif %}
+      {% if personal.available %}
+      <div class="info-item">
+        <span class="info-label">Verfügbarkeit</span>
+        <span class="info-value">
+          {%- if personal.available == 'Immediately' or personal.available == '即时入职' -%}
+            Ab sofort
+          {%- else -%}
+            {{ personal.available }}
+          {%- endif -%}
+        </span>
+      </div>
+      {% endif %}
+      {% if personal.email %}
+      <div class="info-item">
+        <span class="info-label">E-Mail</span>
+        <span class="info-value"><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></span>
+      </div>
+      {% endif %}
+      {% if personal.phone %}
+      <div class="info-item">
+        <span class="info-label">Telefon</span>
+        <span class="info-value">{{ personal.phone }}</span>
+      </div>
+      {% endif %}
+      {% if personal.linkedin %}
+      <div class="info-item">
+        <span class="info-label">LinkedIn</span>
+        <span class="info-value">
+          <a href="{{ personal.linkedin_url if personal.linkedin_url else (personal.linkedin if personal.linkedin.startswith('http') else 'https://' + personal.linkedin) }}" target="_blank">
+            {%- if 'linkedin.com/in/jiajun-zhou' in personal.linkedin or 'jiajun-zhou' in personal.linkedin -%}
+              jiajun-zhou
+            {%- else -%}
+              LinkedIn
+            {%- endif -%}
+          </a>
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- IT Skills -->
+    {% if skills %}
+    <div class="sidebar-block">
+      <h2>IT-Skills</h2>
+      {% for cat in skills %}
+      <div class="skill-category">
+        <div class="skill-title">
+          {%- if cat.category == 'AI与大模型' or cat.category == 'AI & LLM' -%}
+            KI & LLM
+          {%- elif cat.category == '云/DevOps' or cat.category == 'Cloud & DevOps' -%}
+            Cloud & DevOps
+          {%- elif cat.category == '后端与数据' or cat.category == 'Backend & Daten' or cat.category == 'Backend & Data' -%}
+            Backend & Daten
+          {%- elif cat.category == '软件与工具' or cat.category == 'Software & Tools' -%}
+            Software & Tools
+          {%- else -%}
+            {{ cat.category }}
+          {%- endif -%}
+        </div>
+        <div class="skill-tags">
+          {% for tag in cat.tags %}
+          <span class="skill-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Languages -->
+    {% if languages %}
+    <div class="sidebar-block">
+      <h2>Sprachen</h2>
+      {% for lang in languages %}
+      <div class="lang-row">
+        <span class="lang-name">{{ lang.name }}</span>
+        <span class="lang-level">{{ lang.level }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ════════ RIGHT MAIN CONTENT ════════ -->
+  <div class="main-content">
+    <div class="header">
+      <div class="name">{{ personal.name }}</div>
+      {% if summary %}
+      <div class="summary">
+        {{ summary }}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Berufserfahrung -->
+    {% if work %}
+    <div class="main-block">
+      <div class="section-title-main">Berufserfahrung</div>
+      {% for job in work %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ job.title }}</span>
+          <span class="entry-date">{{ job.date }}</span>
+        </div>
+        <div class="entry-subheader">
+          <span class="entry-role">{{ job.role }}</span>
+          {% if job.location %}<span class="entry-location">{{ job.location }}</span>{% endif %}
+        </div>
+        {% if job.bullets %}
+        <ul>
+          {% for b in job.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Projekte -->
+    {% if projects %}
+    <div class="main-block">
+      <div class="section-title-main">Projekte</div>
+      {% for p in projects[:2] %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ p.title }}</span>
+          <span class="entry-date">{{ p.date }}</span>
+        </div>
+        {% if p.bullets %}
+        <ul>
+          {% for b in p.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Ausbildung -->
+    {% if education %}
+    <div class="main-block">
+      <div class="section-title-main">Ausbildung</div>
+      {% for edu in education if "Language" not in edu.title and "Sprachschule" not in edu.title and "语言" not in edu.title %}
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-title">{{ edu.title }}</span>
+          <span class="entry-date">{{ edu.date }}</span>
+        </div>
+        <div class="entry-subheader">
+          <span class="entry-role">{{ edu.degree }}</span>
+        </div>
+        {% if edu.details %}
+        <div class="edu-detail">{{ edu.details|flat }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>

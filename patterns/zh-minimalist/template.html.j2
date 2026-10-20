@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简历 — {{ personal.name }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 5mm 10mm;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9.2pt;
+    line-height: 1.38;
+    color: #333333;
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media screen {
+    body {
+      background: #f4f4f7;
+      padding: 20px;
+    }
+    .resume-container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 5mm 20px;
+      border-radius: 4px;
+    }
+  }
+
+  .resume-container {
+    width: 100%;
+  }
+
+  /* ── 头部个人信息 (等高布局) ── */
+  .header-container {
+    display: flex;
+    gap: 6mm;
+    margin-bottom: 4mm;
+  }
+
+  .header-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 垂直等分/撑开，确保与照片齐平 */
+  }
+
+  .header-photo {
+    width: 25mm; /* 照片固定宽度 */
+    display: flex; /* 确保高度填充 */
+  }
+
+  .header-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .name {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #1a365d; /* 经典深蓝 */
+    letter-spacing: 1px;
+    margin-bottom: 1.0mm;
+  }
+
+  .title-headline {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 1.5mm;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2mm 4mm;
+    font-size: 9pt;
+    color: #4a5568;
+  }
+
+  .info-item a {
+    color: #2b6cb0;
+    text-decoration: none;
+  }
+
+  /* ── 模块通用样式 ── */
+  .section {
+    margin-top: 2.0mm;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1.5px solid #2b6cb0; /* Borsch blue */
+    margin-bottom: 1.2mm;
+    margin-top: 2.0mm;
+  }
+
+  .section-title {
+    background: #2b6cb0; /* Borsch blue */
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 9.8pt;
+    padding: 2px 16px 2px 8px;
+    clip-path: polygon(0 0, 88% 0, 100% 100%, 0 100%); /* Borsch slanted cut */
+    margin-bottom: -1.5px; /* overlap border line */
+    border-radius: 1px 0 0 0;
+    display: inline-block;
+  }
+
+  .summary-text {
+    font-size: 9pt;
+    color: #333333;
+    line-height: 1.5;
+    text-align: justify;
+  }
+
+  /* ── 列表条目 ── */
+  .entry {
+    margin-bottom: 1.5mm;
+  }
+  .entry:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 网格对齐首行：公司/学校占2.2份，职位/学历专业占2份，时间占1.2份 */
+  .entry-header {
+    display: grid;
+    grid-template-columns: 2.2fr 2fr 1.2fr;
+    font-weight: 700;
+    font-size: 9.2pt;
+    color: #2d3748;
+    margin-bottom: 0.5mm;
+  }
+
+  .entry-title {
+    font-size: 9.2pt;
+  }
+
+  .entry-role {
+    font-weight: 600;
+    color: #1a365d;
+  }
+
+  .entry-date {
+    font-weight: 500;
+    color: #718096;
+    font-size: 9pt;
+    text-align: right;
+  }
+
+  .entry ul {
+    list-style-type: disc;
+    padding-left: 5mm;
+  }
+
+  .entry li {
+    font-size: 9pt;
+    color: #333333;
+    margin-bottom: 0.2mm;
+    line-height: 1.38;
+    text-align: justify;
+  }
+
+  /* ── 技能标签云 ── */
+  .skills-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+  }
+
+  .skill-row {
+    display: flex;
+    font-size: 9.5pt;
+  }
+
+  .skill-cat {
+    font-weight: 700;
+    color: #1a365d;
+    width: 28mm;
+    flex-shrink: 0;
+  }
+
+  .skill-val {
+    color: #333333;
+  }
+
+  /* ── 语言 ── */
+  .lang-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2mm;
+    font-size: 9.5pt;
+  }
+
+  .lang-item strong {
+    color: #2d3748;
+  }
+
+</style>
+</head>
+<body>
+<div class="resume-container">
+
+  <!-- ════════ 头部个人信息 ════════ -->
+  <div class="header-container">
+    <div class="header-info">
+      <div>
+        <div class="name" style="margin-bottom: 2.5mm;">{{ personal.name }}</div>
+      </div>
+      <div class="info-grid">
+        {% if personal.available %}<div class="info-item"><strong>当前状态：</strong>{{ personal.available }}</div>{% endif %}
+        {% if personal.phone %}<div class="info-item"><strong>电话号码：</strong>{{ personal.phone }}</div>{% endif %}
+        {% if personal.email %}<div class="info-item"><strong>电子邮箱：</strong><a href="mailto:{{ personal.email }}">{{ personal.email }}</a></div>{% endif %}
+        {% if personal.wechat %}<div class="info-item"><strong>微信号：</strong>{{ personal.wechat }}</div>{% endif %}
+        {% if personal.address %}<div class="info-item"><strong>目前地址：</strong>{{ personal.address }}</div>{% endif %}
+        {% if personal.linkedin %}
+        <div class="info-item">
+          <strong>领英链接：</strong>
+          <a href="{{ personal.linkedin if personal.linkedin.startswith('http') else 'https://' + personal.linkedin }}" target="_blank">
+            {%- if 'linkedin.com/in/jiajun-zhou' in personal.linkedin or 'jiajun-zhou' in personal.linkedin -%}
+              jiajun-zhou
+            {%- else -%}
+              领英
+            {%- endif -%}
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% if personal.photo %}
+    <div class="header-photo">
+      <img src="{{ personal.photo }}" alt="{{ personal.name }}">
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ════════ 个人总结 ════════ -->
+  {% if summary %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">个人总结</div>
+    </div>
+    <div class="summary-text">
+      {{ summary }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ════════ 工作经验 ════════ -->
+  {% if work %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">工作经验</div>
+    </div>
+    {% for job in work %}
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">{{ job.title }}{% if job.location %} <span style="font-weight: normal; color: #718096;">| {{ job.location }}</span>{% endif %}</span>
+        <span class="entry-role">{{ job.role }}</span>
+        <span class="entry-date">{{ job.date }}</span>
+      </div>
+      {% if job.bullets %}
+      <ul>
+        {% for b in job.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ════════ 项目经历 ════════ -->
+  {% if projects %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">项目经历</div>
+    </div>
+    {% for p in projects %}
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">{{ p.title }}</span>
+        <span class="entry-role"></span>
+        <span class="entry-date">{{ p.date }}</span>
+      </div>
+      {% if p.bullets %}
+      <ul>
+        {% for b in p.bullets %}<li>{{ b|flat }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ════════ 教育经历 ════════ -->
+  {% if education %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">教育经历</div>
+    </div>
+    {% for edu in education %}
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">{{ edu.title }}{% if edu.location %} <span style="font-weight: normal; color: #718096;">| {{ edu.location }}</span>{% endif %}</span>
+        <span class="entry-role">{{ edu.degree }}</span>
+        <span class="entry-date">{{ edu.date }}</span>
+      </div>
+      {% if edu.details %}
+      <ul>
+        {% for line in edu.details.splitlines() %}
+        {% if line.strip() %}
+        <li>{{ line.strip() }}</li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ════════ 专业技能 ════════ -->
+  {% if skills %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">专业技能</div>
+    </div>
+    <div class="skills-container">
+      {% for cat in skills %}
+      <div class="skill-row">
+        <span class="skill-cat">{{ cat.category }}：</span>
+        <span class="skill-val">{{ cat.tags|join(', ') }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ════════ 语言能力 ════════ -->
+  {% if languages %}
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">语言能力</div>
+    </div>
+    <div class="lang-grid">
+      {% for lang in languages %}
+      <div class="lang-item"><strong>{{ lang.name }}：</strong>{{ lang.level }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+</body>
+</html>

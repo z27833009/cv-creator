@@ -1,0 +1,5 @@
+name: chinese-sidebar
+description: 双栏侧边商务版 (中文版)，侧边栏包含了等高齐平的个人头像，Flex 左右两端对齐的基本信息卡（含微信号、领英等），分类排布的技术栈 Tag 网格，以及无灰度分割线的简洁头部设计。
+supports_photo: true
+pages: 1
+accent_color: "#0284c7"
