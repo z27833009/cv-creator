@@ -1,226 +1,165 @@
 # cv-creator
 
-A [Claude Code](https://claude.com/code) skill that turns raw CV material (markdown, PDF, plain text, optional photo) into a polished, printable PDF using interchangeable HTML/CSS templates.
+A [Claude Code](https://claude.com/code) skill that turns raw CV material (an old PDF, markdown notes, plain text, an optional photo) into a clean, ATS-safe PDF, using interchangeable HTML/CSS templates.
 
-> **中文简介**：一个 Claude Code 的 skill，把原始简历素材（md / pdf / 文字 / 照片）通过可切换的 HTML/CSS 模板渲染成 PDF。数据和样式分离 —— 改模板不用重写内容。
+中文简介：一个 Claude Code skill，把原始简历素材（PDF、Markdown、文字、照片）整理成结构化数据，再用可切换的 HTML/CSS 模板渲染成 PDF。内容和样式分离，换模板不用改内容。
 
----
+<table>
+  <tr>
+    <td><img src="docs/screenshots/modern-sidebar.png" alt="modern-sidebar template" width="280"></td>
+    <td><img src="docs/screenshots/classic-single.png" alt="classic-single template" width="280"></td>
+    <td><img src="docs/screenshots/timeline.png" alt="timeline template" width="280"></td>
+  </tr>
+  <tr>
+    <td align="center"><code>modern-sidebar</code></td>
+    <td align="center"><code>classic-single</code></td>
+    <td align="center"><code>timeline</code></td>
+  </tr>
+</table>
 
-## Why
+*All three were rendered from the same file, [`examples/data.example.yaml`](examples/data.example.yaml) (a fictional person), by switching only the `--pattern` flag.*
 
-Writing a CV is annoying. Every time you want to try a different style you end up rewriting the same content. This skill separates content from presentation:
+## What it does
 
-- Your data lives in one `data.yaml` file — the single source of truth.
-- Switching templates only changes a flag; no content edits needed.
-- Claude Code drives the full loop: ingest old CVs, update fields, regenerate PDFs on demand.
+You give Claude Code your existing material and ask for a CV. The skill:
 
----
+1. Reads what you provide (PDF text is extracted with `scripts/ingest_pdf.py`).
+2. Builds or updates a single `data.yaml` that holds all your content.
+3. Asks only for information that is genuinely missing.
+4. Renders the data through a template to HTML, then to PDF with headless Edge or Chrome.
+5. Checks that the PDF has a selectable text layer, so applicant tracking systems can parse it.
 
-## Features
+Beyond a single CV, it can also:
 
-- **3 built-in templates** — pick one or add your own:
-  - `modern-sidebar` — dark navy two-column layout with teal accents and photo
-  - `classic-single` — black-and-white, Georgia serif, formal and traditional (no photo)
-  - `timeline` — vertical timeline with circular avatar, blue accents
-- **Content / presentation separation** — one `data.yaml`, many templates
-- **Self-contained PDFs** — photos are base64-embedded; no external dependencies in the generated HTML
-- **Zero-install PDF rendering** — uses built-in Microsoft Edge or Google Chrome headless; auto-falls back to Playwright if neither is available
-- **Progressive disclosure** — SKILL.md stays under the [official](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) 500-line limit; reference docs load only when needed
-- **Defensive rendering** — gracefully handles common YAML mistakes (e.g. colons in bullets that accidentally create nested mappings)
-- **Multi-page aware** — sidebar stripe repeats correctly across printed pages via `position: fixed`
-- **Extensible** — adding a new pattern is one directory: copy, tweak CSS, done
+- **Keep career-direction variants** ("angles"), for example `data-EN-AI.yaml` and `data-EN-Data.yaml`. Each one uses the same real employers, dates and projects, only reordered and reworded. The skill is instructed not to invent experience, and to push back if an angle is not supported by your actual history.
+- **Tailor to a job posting.** Paste a job description and it creates `data-<LANG>-<Company>.yaml` from the closest master or angle file, without overwriting the original.
+- **Build many PDFs at once** from a `cv-config.yaml` with a list of targets, each with an optional page budget.
 
----
+## Install as a Claude Code skill
 
-## Templates at a glance
-
-| Pattern | Photo | Pages | Accent | Use case |
-|---------|-------|-------|--------|----------|
-| **modern-sidebar** | yes | 1–2 | `#56c8c4` (teal) | Tech / AI roles, dense content |
-| **classic-single** | no  | 1–3 | black | Finance, consulting, law, conservative industries |
-| **timeline** | yes  | 1–2 | `#2563eb` (blue) | Product / software roles, visual storytelling |
-
-Screenshots: _add your own renders here_
-
----
-
-## Requirements
+Requirements:
 
 - [Claude Code](https://claude.com/code)
-- [uv](https://docs.astral.sh/uv/) — handles Python dependencies via PEP 723 inline script metadata, so you don't need to manage a virtualenv
-- One of the following for PDF output (auto-detected):
-  - Microsoft Edge (built into Windows 11) — preferred
-  - Google Chrome
-  - [Playwright](https://playwright.dev/) (auto-installed on first run if no browser is found)
+- [uv](https://docs.astral.sh/uv/) (Python dependencies are declared inline in each script, so there is no virtualenv to manage)
+- Microsoft Edge or Google Chrome for PDF output. If neither is found, Playwright is installed and used automatically.
 
----
-
-## Installation
-
-Clone into your Claude Code personal skills directory:
+Clone the repo into your personal skills directory:
 
 ```bash
-# Linux / macOS
-git clone https://github.com/<you>/cv-creator.git ~/.claude/skills/cv-creator
+# macOS / Linux
+git clone https://github.com/z27833009/cv-creator.git ~/.claude/skills/cv-creator
 
 # Windows (Git Bash)
-git clone https://github.com/<you>/cv-creator.git /c/Users/<you>/.claude/skills/cv-creator
+git clone https://github.com/z27833009/cv-creator.git ~/.claude/skills/cv-creator
 ```
 
-Claude Code watches the skills directory and picks up the new skill within the current session — no restart needed.
+Claude Code picks up new skills automatically. Check that it is loaded by typing `/cv-creator` in a session.
 
-Verify it's loaded:
-
-```bash
-# In Claude Code
-/cv-creator
-```
-
----
-
-## Quick start
+## Usage
 
 ```bash
-# 1. Create a working directory for your CV project
-mkdir ~/Documents/my-cv && cd ~/Documents/my-cv
-
-# 2. Put your raw material there (any combination):
-#    - an old CV PDF
-#    - a markdown file with your experience
-#    - a plain text dump
-#    - a passport-style photo
-
-# 3. Start Claude Code
+mkdir ~/my-cv && cd ~/my-cv
+# put your old CV PDF, notes and (optionally) a photo here
 claude
-
-# 4. Invoke the skill (examples):
-#    /cv-creator
-#    "Generate a CV from old-cv.pdf and photo.jpg"
-#    "Add a new project X to my CV and re-render with the timeline template"
 ```
 
-Claude will:
+Then ask in plain language, for example:
 
-1. Read your raw material
-2. Build or update `data.yaml` in the current directory
-3. Ask only for fields that are genuinely missing (target role, start date, etc.)
-4. Render HTML and PDF with the chosen pattern
-5. Report the output paths
+- "Create a CV from old-cv.pdf and photo.jpg using the modern-sidebar template."
+- "Add my new project to the CV and render it with the timeline template."
+- "Here is a job description. Make a tailored version for this role."
 
-Output files land next to `data.yaml`:
+Output files are written next to `data.yaml`:
 
 ```
 my-cv/
-├── data.yaml                  (single source of truth — reuse for every render)
-├── CV-<name>.pdf              (generated)
-├── CV-<name>.html             (generated, useful for inspection)
-└── photo.jpg                  (optional)
+├── data.yaml        your content, reused for every render
+├── CV-<name>.pdf    generated
+├── CV-<name>.html   generated, useful for checking layout
+└── photo.jpg        optional
 ```
 
----
+## Example data.yaml
 
-## Direct script usage
-
-You can also call the builder directly, bypassing Claude:
-
-```bash
-uv run ~/.claude/skills/cv-creator/scripts/build_cv.py \
-  --data data.yaml \
-  --pattern timeline \
-  --out CV.pdf
-```
-
-Useful flags:
-
-- `--pattern <name>` — pick a template from `patterns/`
-- `--no-pdf --html-out preview.html` — fast HTML-only preview
-- `--engine edge|chrome|playwright|auto` — force a specific PDF engine
-
-Run `--help` for the full list.
-
----
-
-## Data format
-
-A minimal `data.yaml`:
+A minimal file:
 
 ```yaml
 personal:
   name: Jane Doe
   title: Software Engineer
-summary: Backend engineer with 5 years of experience.
+  email: jane@example.com
+summary: Backend engineer focused on Python services and cloud infrastructure.
 work:
-  - title: Acme Corp
-    role: Senior Engineer
-    date: 2022 – Present
+  - title: Example GmbH
+    role: Software Engineer
+    location: Berlin, Germany
+    date: 03/2022 - Present
     bullets:
-      - Built the billing platform.
-      - Shipped feature X.
+      - Built and maintained internal REST APIs in Python.
+      - Set up CI/CD pipelines with GitHub Actions.
+education:
+  - title: Example University
+    date: 10/2018 - 09/2021
+    degree: B.Sc. Computer Science
 ```
 
-Full schema + every supported field: [`references/data-schema.md`](references/data-schema.md).
-JSON Schema for tooling: [`schema/cv.schema.json`](schema/cv.schema.json).
-A fully-filled example to copy from: [`examples/data.example.yaml`](examples/data.example.yaml).
+- Full field reference: [`references/data-schema.md`](references/data-schema.md)
+- JSON Schema: [`schema/cv.schema.json`](schema/cv.schema.json)
+- Complete example used for the screenshots: [`examples/data.example.yaml`](examples/data.example.yaml)
 
----
+## Templates
+
+Pass the folder name to `--pattern`.
+
+| Pattern | Language | Photo | Pages | Notes |
+|---|---|---|---|---|
+| `classic-single` | EN | no | 1 to 3 | Single column, serif, black and white. The safest choice for strict ATS pipelines. |
+| `modern-sidebar` | EN | yes | 1 to 2 | Dark navy sidebar with skill tags, teal accents. Good for dense tech CVs. |
+| `timeline` | EN | yes (or initials) | 1 to 2 | Vertical timeline for experience and education, blue accents. |
+| `en-sidebar` | EN | yes | 1 | Compact two-column layout. Shows at most 2 projects. |
+| `de-sidebar` | DE | yes | 1 | German labels, same layout as `en-sidebar`. |
+| `zh-sidebar` | ZH | yes | 1 | Chinese labels, sidebar layout. |
+| `zh-minimalist` | ZH | yes | 1 | Single column, Chinese labels. |
+| `zh-classic` | ZH | yes | 1 | Chinese labels. Currently contains a hardcoded university header; edit the template before using it. |
+
+List them from the command line with `uv run scripts/list_patterns.py`. To add your own, copy a pattern folder, edit `template.html.j2` and `meta.yaml`, and see [`references/pattern-authoring.md`](references/pattern-authoring.md).
+
+## Running the builder directly
+
+The renderer works without Claude as well:
+
+```bash
+uv run ~/.claude/skills/cv-creator/scripts/build_cv.py \
+  --data data.yaml --pattern classic-single --out CV.pdf
+```
+
+Useful flags:
+
+- `--no-pdf --html-out preview.html` renders HTML only, for fast layout iteration
+- `--engine edge|chrome|playwright|auto` forces a PDF engine
+- `--strict` fails the build if the PDF has no selectable text layer
+- `--config cv-config.yaml` builds every target listed in the config file
+
+Run `--help` for everything else. If a PDF looks wrong (missing backgrounds, blank photo, CJK characters not showing), see [`references/pdf-troubleshooting.md`](references/pdf-troubleshooting.md).
 
 ## Project layout
 
 ```
 cv-creator/
-├── SKILL.md                   Skill entry: frontmatter + workflow + links
-├── schema/cv.schema.json      Authoritative data contract
-├── examples/data.example.yaml Fully-filled reference CV
-├── patterns/                  HTML/CSS templates (swap at render time)
-│   ├── modern-sidebar/
-│   │   ├── template.html.j2
-│   │   └── meta.yaml
-│   ├── classic-single/
-│   └── timeline/
+├── SKILL.md              skill entry point: workflow and rules for Claude
+├── schema/               JSON Schema for data.yaml
+├── examples/             fully filled example data
+├── patterns/             one folder per template (template.html.j2 + meta.yaml)
 ├── scripts/
-│   ├── build_cv.py            Main renderer (data + pattern → HTML → PDF)
-│   ├── ingest_pdf.py          Extract text from an existing PDF CV
-│   └── list_patterns.py       Enumerate available patterns (dynamic in SKILL.md)
-└── references/                Long-form docs, loaded on demand by Claude
-    ├── data-schema.md
-    ├── pattern-authoring.md
-    └── pdf-troubleshooting.md
+│   ├── build_cv.py       data + pattern -> HTML -> PDF
+│   ├── ingest_pdf.py     extract text from an existing PDF CV
+│   └── list_patterns.py  list available templates
+├── references/           longer docs Claude loads only when needed
+└── docs/screenshots/     images used in this README
 ```
 
-Following the [Agent Skills](https://agentskills.io/) open standard, with Claude Code extensions where helpful.
-
----
-
-## Adding your own pattern
-
-```bash
-cd ~/.claude/skills/cv-creator
-cp -r patterns/modern-sidebar patterns/my-pattern
-# Edit patterns/my-pattern/template.html.j2 and meta.yaml
-```
-
-Then:
-
-```bash
-uv run scripts/build_cv.py --data data.yaml --pattern my-pattern --out CV.pdf
-```
-
-Full authoring guide (context variables, print CSS tips, common pitfalls): [`references/pattern-authoring.md`](references/pattern-authoring.md).
-
----
-
-## Troubleshooting
-
-When PDF rendering misbehaves (background missing, photo blank, fonts wrong), work through [`references/pdf-troubleshooting.md`](references/pdf-troubleshooting.md). The guide covers engine selection, `print-color-adjust` gotchas, CJK fallback, and the fast HTML-only iteration loop.
-
----
+The skill follows the [Agent Skills](https://agentskills.io/) format.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
-
----
-
-## Credits
-
-Built with [Claude Code](https://claude.com/code). Follows the [Agent Skills open standard](https://agentskills.io/). PDF rendering powered by [Playwright](https://playwright.dev/) / Chromium headless.
+MIT, see [LICENSE](LICENSE).
