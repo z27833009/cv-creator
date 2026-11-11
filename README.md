@@ -120,7 +120,7 @@ Pass the folder name to `--pattern`.
 | `de-sidebar` | DE | yes | 1 | German labels, same layout as `en-sidebar`. |
 | `zh-sidebar` | ZH | yes | 1 | Chinese labels, sidebar layout. |
 | `zh-minimalist` | ZH | yes | 1 | Single column, Chinese labels. |
-| `zh-classic` | ZH | yes | 1 | Chinese labels. Currently contains a hardcoded university header; edit the template before using it. |
+| `zh-classic` | ZH | yes | 1 | Centered name and contact lines, Chinese labels. Supports paragraph descriptions alongside bullets. |
 
 List them from the command line with `uv run scripts/list_patterns.py`. To add your own, copy a pattern folder, edit `template.html.j2` and `meta.yaml`, and see [`references/pattern-authoring.md`](references/pattern-authoring.md).
 
