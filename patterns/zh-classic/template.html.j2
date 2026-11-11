@@ -208,22 +208,28 @@
       <!-- 中间姓名与联系方式 -->
       <td class="header-info-cell">
         <div class="name">{{ personal.name }}</div>
+        {#- 只拼接已填写的字段，避免出现多余的分隔符 -#}
+        {%- set line1 = [] -%}
+        {%- if personal.phone %}{% set _ = line1.append(personal.phone | e) %}{% endif -%}
+        {%- if personal.email %}{% set _ = line1.append('<a href="mailto:' ~ (personal.email | e) ~ '">' ~ (personal.email | e) ~ '</a>') %}{% endif -%}
+        {%- if personal.wechat %}{% set _ = line1.append('微信号：' ~ (personal.wechat | e)) %}{% endif -%}
+        {%- set line2 = [] -%}
+        {%- if personal.address %}{% set _ = line2.append('现居：' ~ (personal.address | e)) %}{% endif -%}
+        {%- if personal.gender %}{% set _ = line2.append(personal.gender | e) %}{% endif -%}
+        {%- if personal.hometown %}{% set _ = line2.append(personal.hometown | e) %}{% endif -%}
+        {%- if personal.ethnicity %}{% set _ = line2.append(personal.ethnicity | e) %}{% endif -%}
+        {%- if personal.linkedin %}{% set _ = line2.append('<a href="' ~ ((personal.linkedin if personal.linkedin.startswith('http') else 'https://' ~ personal.linkedin) | e) ~ '" target="_blank">领英</a>') %}{% endif %}
         <div class="contact-info">
-          {% if personal.phone %}{{ personal.phone }}{% endif %}
-          {%- if personal.email %} 丨 <a href="mailto:{{ personal.email }}">{{ personal.email }}</a>{% endif -%}
-          {%- if personal.wechat %} 丨 微信号：{{ personal.wechat }}{% endif -%}<br>
-          {%- if personal.address %}现居：{{ personal.address }}{% endif -%}
-          {%- if personal.gender %} 丨 {{ personal.gender }}{% endif -%}
-          {%- if personal.hometown %} 丨 {{ personal.hometown }}{% endif -%}
-          {%- if personal.ethnicity %} 丨 {{ personal.ethnicity }}{% endif -%}
-          {%- if personal.linkedin %} 丨 <a href="{{ personal.linkedin if personal.linkedin.startswith('http') else 'https://' + personal.linkedin }}" target="_blank">领英</a>{% endif -%}
+          {{ line1 | join(' 丨 ') }}
+          {%- if line1 and line2 %}<br>{% endif -%}
+          {{ line2 | join(' 丨 ') }}
         </div>
       </td>
       
       <!-- 右侧照片 -->
       <td class="header-photo-cell">
-        {% if personal.photo %}
-        <img src="{{ personal.photo }}" alt="{{ personal.name }}">
+        {% if personal.photo_data_uri %}
+        <img src="{{ personal.photo_data_uri }}" alt="{{ personal.name }}">
         {% endif %}
       </td>
     </tr>
